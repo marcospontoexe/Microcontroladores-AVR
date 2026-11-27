@@ -12,7 +12,7 @@
 #include <LiquidCrystal_I2C.h>
 
 // DEFINIÇÕES
-#define endereco  0X7C // Endereços comuns: 0x27, 0x3F
+#define endereco  0x27 // PCF8574 com os jumpers A0-A2 abertos. Outro comum: 0x3F (PCF8574A). Confirme com o I2C_scanner (o 0x7C usado antes fica na faixa reservada do I2C, 0x78-0x7F)
 #define colunas   16
 #define linhas    2
 
@@ -42,6 +42,7 @@ void setup() {
 void loop() {
 
   //lcd.clear();
+  lcd.setCursor(0, 0); // VOLTA PARA A LINHA 1: SEM ISSO, O TEXTO SEGUIRIA DO FIM DA LINHA 2
   lcd.print("- Ola, Mundo! -");
   lcd.setCursor(0, 1); // POSICIONA O CURSOR NA PRIMEIRA COLUNA DA LINHA 2
   lcd.print("Fim do Setup ()");
