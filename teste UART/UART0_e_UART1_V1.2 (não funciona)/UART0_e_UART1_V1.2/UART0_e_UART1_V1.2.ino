@@ -1,4 +1,7 @@
-
+// Envia pela UART1 (Serial2: GPIO 8 = TX, GPIO 9 = RX) o que for digitado no monitor serial da IDE
+// e mostra no monitor, linha por linha, o que chegar pela UART1.
+// Para testar com uma placa só, ligue o GPIO 8 ao GPIO 9 (loopback).
+// No monitor serial, escolha um final de linha que inclua "Nova linha" (NL), porque a mensagem só é mostrada ao chegar o '\n'.
 
 void setup() {
   Serial.begin(115200);
@@ -9,23 +12,21 @@ void setup() {
 
 void loop() {
   static String message = "";  // Variável para armazenar a mensagem acumulada
-  String txt = Serial.readString(); //recebe a string digitada na serial do arduino
-  uint16_t length = Serial2.print(txt);      //A UART1 recebe a string 'txt'. Esse método tb retorna o número de bytes escritos na porta serial.
-  //uint16_t length = Serial2.available();  //retorna a quantidade de bytes disponíveis para leitura (o buffer de recebimento armazena até 64 bytes)
 
+  // envia: repassa para a UART1, byte a byte, o que foi digitado no monitor serial
+  while (Serial.available() > 0) {          // só lê o que já chegou; o readString() usado antes travava o loop por 1 s a cada volta
+    Serial2.write((uint8_t)Serial.read());  // write(uint8_t) envia o byte sem conversão para texto
+  }
 
-  if (length > 0) {
-    Serial.print(length);
-    for (uint8_t i = 0; i < length; i++) {
-      String character = Serial2.readString();
-      Serial.write(character);
-      if (character == '\n') {  // Se for um caractere de nova linha
-        Serial.print("PDL recebendo: ");
-        Serial.println(message);
-        message = "";  // Limpa a mensagem acumulada
-      } else {
-        message += character;  // Adiciona o caractere à mensagem
-      }
+  // recebe: monta a mensagem com os caracteres que chegam pela UART1 até encontrar o '\n'
+  while (Serial2.available() > 0) {
+    char character = Serial2.read();  // read() devolve um caractere por vez; readString() devolvia tudo numa String, que não pode ser comparada com '\n'
+    if (character == '\n') {  // Se for um caractere de nova linha
+      Serial.print("PDL recebendo: ");
+      Serial.println(message);
+      message = "";  // Limpa a mensagem acumulada
+    } else if (character != '\r') {  // ignora o '\r' do final de linha "NL e CR"
+      message += character;  // Adiciona o caractere à mensagem
     }
   }
 }

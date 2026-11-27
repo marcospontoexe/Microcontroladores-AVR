@@ -11,7 +11,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 void setup() {
   Serial.begin(9600);
   
-  if(!display.begin(SSD1306_I2C_ADDRESS, OLED_RESET)) {
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS)) { // begin(alimentação do painel, endereço I2C): gera a tensão do painel internamente e usa o endereço 0x3C
     Serial.println(F("Erro ao iniciar o display SSD1306"));
     while(true);
   }
